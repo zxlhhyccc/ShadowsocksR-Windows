@@ -342,11 +342,6 @@ namespace Shadowsocks.Controller
                             AllowPreReleaseItem.Click += AllowPreRelease_Click;
                             break;
                         }
-                        case @"Donate":
-                        {
-                            menuItem.Click += DonateMenuItem_Click;
-                            break;
-                        }
                         case @"Quit":
                         {
                             menuItem.Click += Quit_Click;
@@ -501,30 +496,52 @@ namespace Shadowsocks.Controller
 
                     //Set SelectedServer
                     var selectedIndex = -1;
-                    if (selectedServer != null)
+                    if (selectedServer is not null)
                     {
-                        selectedIndex = config.Configs.FindIndex(server =>
-                          server.Id == selectedServer.Id
-                          || server.SubTag == selectedServer.SubTag && server.IsMatchServer(selectedServer));
+                        selectedIndex = config.Configs.FindIndex(server => server.Id == selectedServer.Id);
+
+                        if (selectedIndex < 0)
+                        {
+                            selectedIndex = config.Configs.FindIndex(server =>
+                                server.SubTag == selectedServer.SubTag && server.IsMatchServer(selectedServer)
+                            );
+                        }
+
+                        if (selectedIndex < 0)
+                        {
+                            selectedIndex = config.Configs.FindIndex(server =>
+                                server.SubTag == selectedServer.SubTag
+                                && server.Group == selectedServer.Group
+                                && server.Remarks == selectedServer.Remarks
+                            );
+                        }
+
+                        if (selectedIndex < 0)
+                        {
+                            selectedIndex = config.Configs.FindIndex(server =>
+                                server.SubTag == selectedServer.SubTag
+                                && server.Group == selectedServer.Group
+                            );
+                        }
+
+                        if (selectedIndex < 0)
+                        {
+                            selectedIndex = config.Configs.FindIndex(server => server.SubTag == selectedServer.SubTag);
+                        }
                     }
 
-                    if (selectedServer == null || selectedIndex == -1)
-                    {
-                        config.Index = config.Configs.Count - 1;
-                    }
-                    else
-                    {
-                        config.Index = selectedIndex;
-                    }
+                    config.Index = selectedIndex < 0 ? default : selectedIndex;
 
                     //If Update Success
                     if (count > 0)
                     {
                         foreach (var serverSubscribe in config.ServerSubscribes.Where(serverSubscribe => serverSubscribe.Url == Global.UpdateNodeChecker.SubscribeTask.Url))
                         {
-                            serverSubscribe.LastUpdateTime = (ulong)Math.Floor(DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds);
+                            serverSubscribe.LastUpdateTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                         }
-                        config.Configs.RemoveAll(server => server.IsMatchServer(new Server()));
+
+                        var defaultServer = new Server();
+                        config.Configs.RemoveAll(server => server.IsMatchServer(defaultServer));
                     }
                     controller.SaveServersConfig(config, true);
                 }
@@ -1013,11 +1030,6 @@ namespace Shadowsocks.Controller
         private static void FeedbackItem_Click(object sender, RoutedEventArgs e)
         {
             Utils.OpenURL(@"https://github.com/HMBSbige/ShadowsocksR-Windows/issues/new/choose");
-        }
-
-        private static void DonateMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            new ImageWindow().Show();
         }
 
         private void notifyIcon_TrayLeftMouseUp(object sender, RoutedEventArgs e)

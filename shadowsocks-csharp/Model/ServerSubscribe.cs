@@ -13,7 +13,7 @@ namespace Shadowsocks.Model
     {
         private string _url;
         private string _tag;
-        private ulong _lastUpdateTime;
+        private long _lastUpdateTime;
         private bool _autoCheckUpdate;
         private HttpRequestProxyType _proxyType;
 
@@ -31,7 +31,7 @@ namespace Shadowsocks.Model
             {
                 if (SetField(ref _url, value))
                 {
-                    SubscribeChanged?.Invoke(this, new EventArgs());
+                    SubscribeChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
@@ -53,19 +53,19 @@ namespace Shadowsocks.Model
                 }
                 if (SetField(ref _tag, value))
                 {
-                    SubscribeChanged?.Invoke(this, new EventArgs());
+                    SubscribeChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
 
-        public ulong LastUpdateTime
+        public long LastUpdateTime
         {
             get => _lastUpdateTime;
             set
             {
                 if (SetField(ref _lastUpdateTime, value))
                 {
-                    SubscribeChanged?.Invoke(this, new EventArgs());
+                    SubscribeChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
@@ -77,7 +77,7 @@ namespace Shadowsocks.Model
             {
                 if (SetField(ref _autoCheckUpdate, value))
                 {
-                    SubscribeChanged?.Invoke(this, new EventArgs());
+                    SubscribeChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
@@ -89,7 +89,7 @@ namespace Shadowsocks.Model
             {
                 if (SetField(ref _proxyType, value))
                 {
-                    SubscribeChanged?.Invoke(this, new EventArgs());
+                    SubscribeChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
         }

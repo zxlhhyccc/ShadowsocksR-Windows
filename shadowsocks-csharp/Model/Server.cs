@@ -382,7 +382,7 @@ namespace Shadowsocks.Model
             SubTag = @"";
             UdpOverTcp = false;
             Enable = true;
-            Id = Rng.RandId();
+            Id = Guid.NewGuid().ToString(@"N");
             SpeedLog = new ServerSpeedLog();
             Index = 0;
             IsSelected = false;
@@ -536,7 +536,7 @@ namespace Shadowsocks.Model
             {
                 OnPropertyChanged(nameof(SsLink));
                 OnPropertyChanged(nameof(SsrLink));
-                ServerChanged?.Invoke(this, new EventArgs());
+                ServerChanged?.Invoke(this, EventArgs.Empty);
                 return true;
             }
             return false;

@@ -275,9 +275,17 @@ namespace Shadowsocks.Controller
         /// </summary>
         public void ToggleMode(ProxyMode mode)
         {
+            ProxyMode oldMode = Global.GuiConfig.SysProxyMode;
             Global.GuiConfig.SysProxyMode = mode;
             ReloadPacServer();
-            UpdateSystemProxy();
+            if (oldMode is not ProxyMode.NoModify && mode is ProxyMode.NoModify)
+            {
+                SystemProxy.Restore();
+            }
+            else
+            {
+                UpdateSystemProxy();
+            }
             SaveAndNotifyChanged();
         }
 
@@ -325,7 +333,7 @@ namespace Shadowsocks.Controller
         public void SaveAndNotifyChanged()
         {
             Global.SaveConfig();
-            Application.Current.Dispatcher?.InvokeAsync(() => { ConfigChanged?.Invoke(this, new EventArgs()); });
+            Application.Current.Dispatcher?.InvokeAsync(() => { ConfigChanged?.Invoke(this, EventArgs.Empty); });
         }
 
         /// <summary>
@@ -384,7 +392,10 @@ namespace Shadowsocks.Controller
 
             _listener?.Stop();
             _httpProxyRunner?.Stop();
-            SystemProxy.Restore();
+            if (Global.GuiConfig.SysProxyMode is not ProxyMode.NoModify)
+            {
+                SystemProxy.Restore();
+            }
             ServerTransferTotal.Save(_transfer, Global.GuiConfig.Configs);
         }
 
@@ -500,7 +511,7 @@ namespace Shadowsocks.Controller
 
             LoadPortMap();
 
-            Application.Current.Dispatcher?.InvokeAsync(() => { ConfigChanged?.Invoke(this, new EventArgs()); });
+            Application.Current.Dispatcher?.InvokeAsync(() => { ConfigChanged?.Invoke(this, EventArgs.Empty); });
 
             UpdateSystemProxy();
         }
@@ -555,12 +566,12 @@ namespace Shadowsocks.Controller
 
         public void ShowConfigForm(int? index = null)
         {
-            ShowConfigFormEvent?.Invoke(index, new EventArgs());
+            ShowConfigFormEvent?.Invoke(index, EventArgs.Empty);
         }
 
         public void ShowSubscribeWindow()
         {
-            ShowSubscribeWindowEvent?.Invoke(default, new EventArgs());
+            ShowSubscribeWindowEvent?.Invoke(default, EventArgs.Empty);
         }
 
         /// <summary>
